@@ -1,6 +1,6 @@
 /**
  * Windows 安装脚本模板
- * 生成用于安装 CRUSH 配置的 PowerShell 脚本
+ * 生成用于安装 CRUSH 及其配置的 PowerShell 脚本
  */
 
 /**
@@ -25,6 +25,8 @@ $CONFIG_FILE = "$CONFIG_DIR\\crush.json"
 $SKILLS_DIR = "$CONFIG_DIR\\skills"
 $SKILLS_REPO = "https://github.com/anthropics/skills.git"
 $DOCS_URL = "${baseUrl}"
+$BIN_DIR = "$CONFIG_DIR\\bin"
+$CRUSH_EXE = "$BIN_DIR\\crush.exe"
 
 # ----------------------------------------------------------------------------
 # Output Functions
@@ -68,24 +70,84 @@ function Exit-WithError {
 }
 
 # ----------------------------------------------------------------------------
+# Install Crush Binary
+# ----------------------------------------------------------------------------
+function Install-Crush {
+    $downloadUrl = "$BASE_URL/api/download/crush/windows/amd64"
+    $tempFile = "$env:TEMP\\crush_$([System.Guid]::NewGuid().ToString()).exe"
+    
+    Write-Info "Downloading Crush binary..."
+    
+    # Create bin directory if it doesn't exist
+    if (-not (Test-Path $BIN_DIR)) {
+        try {
+            New-Item -ItemType Directory -Path $BIN_DIR -Force | Out-Null
+            Write-Success "Created $BIN_DIR"
+        } catch {
+            Exit-WithError "Failed to create bin directory: $_"
+        }
+    }
+    
+    # Download binary
+    try {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $tempFile -UseBasicParsing
+        
+        # Move to bin directory
+        Move-Item -Path $tempFile -Destination $CRUSH_EXE -Force
+        
+        Write-Success "Crush installed to $CRUSH_EXE"
+        
+        # Add to PATH if not already there
+        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        if ($userPath -notlike "*$BIN_DIR*") {
+            Write-Info "Adding $BIN_DIR to user PATH..."
+            $newPath = "$BIN_DIR;$userPath"
+            [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+            $env:Path = "$BIN_DIR;$env:Path"
+            Write-Success "Added to PATH (restart terminal for full effect)"
+        }
+        
+        return $true
+    } catch {
+        if (Test-Path $tempFile) {
+            Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+        }
+        Exit-WithError "Failed to download Crush binary: $_"
+    }
+}
+
+# ----------------------------------------------------------------------------
 # Main Installation Steps
 # ----------------------------------------------------------------------------
 
 Write-Header "CRUSH Configuration Installer"
 
-# Step 1: Check if Crush is installed
+# Step 1: Check if Crush is installed, install if not
 Write-Info "Checking if Crush is installed..."
 $crushCommand = Get-Command crush -ErrorAction SilentlyContinue
-if (-not $crushCommand) {
-    Write-Error-Message "Crush is not installed!"
-    Write-Host ""
-    Write-Info "Please install Crush first:"
-    Write-Host "  • Windows: scoop install charmbracelet/tap/crush"
-    Write-Host "  • Or see: https://github.com/charmbracelet/crush#installation"
-    Write-Host ""
-    exit 1
+if ($crushCommand) {
+    try {
+        $crushVersion = & crush --version 2>$null
+        Write-Success "Crush is already installed (version: $crushVersion)"
+    } catch {
+        Write-Success "Crush is already installed"
+    }
+} elseif (Test-Path $CRUSH_EXE) {
+    Write-Success "Crush is installed at $CRUSH_EXE"
+    # Add to current session PATH
+    $env:Path = "$BIN_DIR;$env:Path"
+} else {
+    Write-Warning-Message "Crush is not installed"
+    Write-Info "Installing Crush automatically..."
+    Install-Crush
+    
+    # Verify installation
+    if (Test-Path $CRUSH_EXE) {
+        Write-Success "Crush installed successfully"
+    } else {
+        Exit-WithError "Crush installation failed"
+    }
 }
-Write-Success "Crush is installed"
 
 # Step 2: Create config directory
 Write-Info "Creating config directory..."
@@ -137,6 +199,15 @@ if (Test-Path $SKILLS_DIR) {
 Write-Info "Validating installation..."
 $validationPassed = $true
 
+# Check Crush binary
+$crushAvailable = (Get-Command crush -ErrorAction SilentlyContinue) -or (Test-Path $CRUSH_EXE)
+if ($crushAvailable) {
+    Write-Success "Crush binary is available"
+} else {
+    Write-Error-Message "Crush binary not found"
+    $validationPassed = $false
+}
+
 if (Test-Path $CONFIG_FILE) {
     Write-Success "Config file exists: $CONFIG_FILE"
 } else {
@@ -162,6 +233,8 @@ if (-not $validationPassed) {
 # ----------------------------------------------------------------------------
 Write-Header "Installation Summary"
 
+$crushPath = if (Get-Command crush -ErrorAction SilentlyContinue) { (Get-Command crush).Source } else { $CRUSH_EXE }
+Write-Host "  Crush binary:     $crushPath"
 Write-Host "  Config file:      $CONFIG_FILE"
 Write-Host "  Skills directory: $SKILLS_DIR"
 Write-Host "  Skills count:     $skillsCount"

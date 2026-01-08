@@ -168,6 +168,7 @@
     - _Requirements: 11.5_
 
 - [-] 14. 部署验证
+
   - [-] 14.1 初始化 Git 仓库并推送到 GitHub
     - git init, git add, git commit
     - 创建 GitHub 仓库并推送
@@ -185,6 +186,31 @@
     - 验证安装脚本可正常下载
     - 测试安装脚本中的 BASE_URL 是否正确
     - _Requirements: 11.1, 11.2, 11.3_
+
+- [ ] 15. Crush 二进制文件托管和自动安装
+  - [ ] 15.1 创建二进制文件托管目录结构
+    - 创建 public/binaries 目录
+    - 创建 README 说明如何添加二进制文件
+    - _Requirements: 5.5.4_
+  - [ ] 15.2 实现二进制文件下载 API
+    - 创建 app/api/download/crush/[platform]/[arch]/route.ts
+    - 支持 linux/darwin/windows 平台
+    - 支持 amd64/arm64 架构
+    - 返回 Content-Type: application/octet-stream
+    - _Requirements: 5.5.1, 5.5.2, 5.5.3, 5.5.5_
+  - [ ] 15.3 更新 Unix 安装脚本支持自动安装 Crush
+    - 检测平台 (linux/darwin) 和架构 (amd64/arm64)
+    - 如果 Crush 未安装，自动下载并安装
+    - 安装到 ~/.local/bin 或 /usr/local/bin
+    - _Requirements: 4.3, 4.4_
+  - [ ] 15.4 更新 Windows 安装脚本支持自动安装 Crush
+    - 如果 Crush 未安装，自动下载并安装
+    - 安装到 %LOCALAPPDATA%\crush\bin
+    - 添加到用户 PATH
+    - _Requirements: 5.3, 5.8_
+  - [ ] 15.5 更新 Web UI 显示二进制下载链接
+    - 显示各平台下载链接
+    - _Requirements: 6.5_
 
 ## Notes
 

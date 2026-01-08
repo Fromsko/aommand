@@ -98,33 +98,45 @@ Crush 从以下路径发现 Skills：
 
 ### Requirement 4: Unix 安装脚本生成
 
-**User Story:** As a Linux/macOS 用户, I want to 通过一条命令安装 Crush 配置, so that 我可以快速完成环境配置。
+**User Story:** As a Linux/macOS 用户, I want to 通过一条命令安装 Crush 及其配置, so that 我可以快速完成环境配置。
 
 #### Acceptance Criteria
 
 1. WHEN a client requests GET /api/install/unix, THE Install_Script_Generator SHALL return a bash script with Content-Type text/plain
 2. WHEN generating the script, THE Install_Script_Generator SHALL replace the BASE_URL placeholder with the actual server URL
-3. THE Install_Script_Generator SHALL generate a script that checks if Crush is installed before proceeding
-4. THE Install_Script_Generator SHALL generate a script that creates the config directory at ~/.config/crush/
-5. THE Install_Script_Generator SHALL generate a script that downloads and saves the configuration from /api/config
-6. THE Install_Script_Generator SHALL generate a script that clones or updates the Skills repository from GitHub
-7. THE Install_Script_Generator SHALL generate a script that validates the installation by checking config file and skills directory existence
-8. IF Crush is not installed, THEN THE Install_Script_Generator SHALL generate a script that displays installation instructions and exits with code 1
+3. IF Crush is not installed, THEN THE Install_Script_Generator SHALL generate a script that automatically downloads and installs the Crush binary from the server
+4. THE Install_Script_Generator SHALL generate a script that detects the platform (linux/darwin) and architecture (amd64/arm64) to download the correct binary
+5. THE Install_Script_Generator SHALL generate a script that creates the config directory at ~/.config/crush/
+6. THE Install_Script_Generator SHALL generate a script that downloads and saves the configuration from /api/config
+7. THE Install_Script_Generator SHALL generate a script that clones or updates the Skills repository from GitHub
+8. THE Install_Script_Generator SHALL generate a script that validates the installation by checking crush binary, config file and skills directory existence
 
 ### Requirement 5: Windows 安装脚本生成
 
-**User Story:** As a Windows 用户, I want to 通过一条命令安装 Crush 配置, so that 我可以快速完成环境配置。
+**User Story:** As a Windows 用户, I want to 通过一条命令安装 Crush 及其配置, so that 我可以快速完成环境配置。
 
 #### Acceptance Criteria
 
 1. WHEN a client requests GET /api/install/windows, THE Install_Script_Generator SHALL return a PowerShell script with Content-Type text/plain
 2. WHEN generating the script, THE Install_Script_Generator SHALL replace the BASE_URL placeholder with the actual server URL
-3. THE Install_Script_Generator SHALL generate a script that checks if Crush is installed before proceeding
+3. IF Crush is not installed, THEN THE Install_Script_Generator SHALL generate a script that automatically downloads and installs the Crush binary from the server
 4. THE Install_Script_Generator SHALL generate a script that creates the config directory at %LOCALAPPDATA%\crush\
 5. THE Install_Script_Generator SHALL generate a script that downloads and saves the configuration from /api/config
 6. THE Install_Script_Generator SHALL generate a script that clones or updates the Skills repository from GitHub
-7. THE Install_Script_Generator SHALL generate a script that validates the installation by checking config file and skills directory existence
-8. IF Crush is not installed, THEN THE Install_Script_Generator SHALL generate a script that displays installation instructions and exits with code 1
+7. THE Install_Script_Generator SHALL generate a script that validates the installation by checking crush binary, config file and skills directory existence
+8. THE Install_Script_Generator SHALL generate a script that adds the Crush binary to the user's PATH if not already present
+
+### Requirement 5.5: Crush 二进制文件托管
+
+**User Story:** As a 用户, I want to 从配置服务器下载 Crush 二进制文件, so that 我不需要额外配置安装源。
+
+#### Acceptance Criteria
+
+1. THE Config_Server SHALL host Crush binary files for Linux (amd64, arm64), macOS (amd64, arm64), and Windows (amd64) platforms
+2. WHEN a client requests GET /api/download/crush/{platform}/{arch}, THE Config_Server SHALL return the corresponding binary file
+3. THE Config_Server SHALL return Content-Type application/octet-stream for binary downloads
+4. THE Config_Server SHALL store binary files in the public/binaries directory
+5. IF the requested binary does not exist, THEN THE Config_Server SHALL return a 404 status code
 
 ### Requirement 6: Web 用户界面
 

@@ -1,6 +1,6 @@
 /**
  * Unix (Linux/macOS) 安装脚本模板
- * 生成用于安装 CRUSH 配置的 bash 脚本
+ * 生成用于安装 CRUSH 及其配置的 bash 脚本
  */
 
 /**
@@ -35,6 +35,7 @@ CONFIG_FILE="\$CONFIG_DIR/crush.json"
 SKILLS_DIR="\$CONFIG_DIR/skills"
 SKILLS_REPO="https://github.com/anthropics/skills.git"
 DOCS_URL="${baseUrl}"
+INSTALL_DIR="\$HOME/.local/bin"
 
 # ----------------------------------------------------------------------------
 # Output Functions
@@ -72,25 +73,101 @@ error_exit() {
 }
 
 # ----------------------------------------------------------------------------
+# Platform Detection
+# ----------------------------------------------------------------------------
+detect_platform() {
+    local os arch
+    
+    # Detect OS
+    case "\$(uname -s)" in
+        Linux*)  os="linux";;
+        Darwin*) os="darwin";;
+        *)       error_exit "Unsupported operating system: \$(uname -s)";;
+    esac
+    
+    # Detect architecture
+    case "\$(uname -m)" in
+        x86_64|amd64)  arch="amd64";;
+        arm64|aarch64) arch="arm64";;
+        *)             error_exit "Unsupported architecture: \$(uname -m)";;
+    esac
+    
+    echo "\$os/\$arch"
+}
+
+# ----------------------------------------------------------------------------
+# Install Crush Binary
+# ----------------------------------------------------------------------------
+install_crush() {
+    local platform="\$1"
+    local download_url="\$BASE_URL/api/download/crush/\$platform"
+    local temp_file="/tmp/crush_binary_\$\$"
+    
+    print_info "Downloading Crush binary for \$platform..."
+    
+    # Create install directory if it doesn't exist
+    if [ ! -d "\$INSTALL_DIR" ]; then
+        mkdir -p "\$INSTALL_DIR" || error_exit "Failed to create install directory: \$INSTALL_DIR"
+    fi
+    
+    # Download binary
+    if curl -fsSL "\$download_url" -o "\$temp_file"; then
+        # Make executable
+        chmod +x "\$temp_file"
+        
+        # Move to install directory
+        mv "\$temp_file" "\$INSTALL_DIR/crush" || error_exit "Failed to install Crush binary"
+        
+        print_success "Crush installed to \$INSTALL_DIR/crush"
+        
+        # Check if install dir is in PATH
+        if [[ ":\$PATH:" != *":\$INSTALL_DIR:"* ]]; then
+            print_warning "\$INSTALL_DIR is not in your PATH"
+            print_info "Add the following to your shell profile (~/.bashrc, ~/.zshrc, etc.):"
+            echo ""
+            echo "    export PATH=\"\\\$HOME/.local/bin:\\\$PATH\""
+            echo ""
+            # Temporarily add to PATH for this session
+            export PATH="\$INSTALL_DIR:\$PATH"
+        fi
+        
+        return 0
+    else
+        rm -f "\$temp_file" 2>/dev/null
+        error_exit "Failed to download Crush binary from \$download_url"
+    fi
+}
+
+# ----------------------------------------------------------------------------
 # Main Installation Steps
 # ----------------------------------------------------------------------------
 
 print_header "CRUSH Configuration Installer"
 
-# Step 1: Check if Crush is installed
-print_info "Checking if Crush is installed..."
-if ! command -v crush &> /dev/null; then
-    print_error "Crush is not installed!"
-    echo ""
-    print_info "Please install Crush first:"
-    echo "  • macOS: brew install charmbracelet/tap/crush"
-    echo "  • Linux: See https://github.com/charmbracelet/crush#installation"
-    echo ""
-    exit 1
-fi
-print_success "Crush is installed"
+# Step 1: Detect platform
+print_info "Detecting platform..."
+PLATFORM=\$(detect_platform)
+print_success "Platform detected: \$PLATFORM"
 
-# Step 2: Create config directory
+# Step 2: Check if Crush is installed, install if not
+print_info "Checking if Crush is installed..."
+if command -v crush &> /dev/null; then
+    CRUSH_VERSION=\$(crush --version 2>/dev/null || echo "unknown")
+    print_success "Crush is already installed (version: \$CRUSH_VERSION)"
+else
+    print_warning "Crush is not installed"
+    print_info "Installing Crush automatically..."
+    install_crush "\$PLATFORM"
+    
+    # Verify installation
+    if command -v crush &> /dev/null || [ -x "\$INSTALL_DIR/crush" ]; then
+        print_success "Crush installed successfully"
+    else
+        error_exit "Crush installation failed"
+    fi
+fi
+
+# Step 3: Create config directory
 print_info "Creating config directory..."
 if [ ! -d "\$CONFIG_DIR" ]; then
     mkdir -p "\$CONFIG_DIR" || error_exit "Failed to create config directory"
@@ -99,7 +176,7 @@ else
     print_success "Config directory already exists"
 fi
 
-# Step 3: Download configuration
+# Step 4: Download configuration
 print_info "Downloading configuration from \$BASE_URL/api/config..."
 if curl -fsSL "\$BASE_URL/api/config" -o "\$CONFIG_FILE"; then
     print_success "Configuration downloaded to \$CONFIG_FILE"
@@ -107,7 +184,7 @@ else
     error_exit "Failed to download configuration"
 fi
 
-# Step 4: Clone or update Skills repository
+# Step 5: Clone or update Skills repository
 print_info "Setting up Skills repository..."
 if [ -d "\$SKILLS_DIR" ]; then
     print_info "Skills directory exists, updating..."
@@ -127,9 +204,17 @@ else
     fi
 fi
 
-# Step 5: Validate installation
+# Step 6: Validate installation
 print_info "Validating installation..."
 VALIDATION_PASSED=true
+
+# Check Crush binary
+if command -v crush &> /dev/null || [ -x "\$INSTALL_DIR/crush" ]; then
+    print_success "Crush binary is available"
+else
+    print_error "Crush binary not found"
+    VALIDATION_PASSED=false
+fi
 
 if [ -f "\$CONFIG_FILE" ]; then
     print_success "Config file exists: \$CONFIG_FILE"
@@ -156,7 +241,8 @@ fi
 # ----------------------------------------------------------------------------
 print_header "Installation Summary"
 
-echo "  Config file:     \$CONFIG_FILE"
+echo "  Crush binary:     \$(command -v crush || echo "\$INSTALL_DIR/crush")"
+echo "  Config file:      \$CONFIG_FILE"
 echo "  Skills directory: \$SKILLS_DIR"
 echo "  Skills count:     \$SKILLS_COUNT"
 echo ""

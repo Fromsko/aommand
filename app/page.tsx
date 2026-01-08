@@ -10,7 +10,7 @@ const FEATURES = [
   {
     icon: "⚡",
     title: "一键安装",
-    description: "跨平台安装脚本，支持 Unix 和 Windows",
+    description: "自动下载 Crush 并配置，支持 Unix 和 Windows",
   },
   {
     icon: "🔧",
@@ -26,6 +26,37 @@ const FEATURES = [
     icon: "🔄",
     title: "自动更新",
     description: "Skills 仓库自动克隆和更新",
+  },
+];
+
+/**
+ * 二进制下载链接
+ */
+const BINARY_DOWNLOADS = [
+  {
+    platform: "Linux x64",
+    path: "/api/download/crush/linux/amd64",
+    icon: "🐧",
+  },
+  {
+    platform: "Linux ARM64",
+    path: "/api/download/crush/linux/arm64",
+    icon: "🐧",
+  },
+  {
+    platform: "macOS Intel",
+    path: "/api/download/crush/darwin/amd64",
+    icon: "🍎",
+  },
+  {
+    platform: "macOS Apple Silicon",
+    path: "/api/download/crush/darwin/arm64",
+    icon: "🍎",
+  },
+  {
+    platform: "Windows x64",
+    path: "/api/download/crush/windows/amd64",
+    icon: "🪟",
   },
 ];
 
@@ -235,6 +266,38 @@ export default function HomePage() {
               <SkillCard key={skill.name} skill={skill} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Binary Downloads Section */}
+      <section className="py-10 sm:py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center text-zinc-50">
+            手动下载
+          </h2>
+          <p className="text-zinc-300 text-center mb-6 sm:mb-8 px-2">
+            如果自动安装失败，可以手动下载对应平台的 Crush 二进制文件
+          </p>
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            {BINARY_DOWNLOADS.map((download) => (
+              <a
+                key={download.path}
+                href={`${baseUrl}${download.path}`}
+                className="flex flex-col items-center gap-2 p-4 bg-zinc-900/50 rounded-lg border border-zinc-700 hover:border-zinc-500 hover:bg-zinc-800/50 transition-all"
+                download
+              >
+                <span className="text-2xl" role="img" aria-hidden="true">
+                  {download.icon}
+                </span>
+                <span className="text-sm text-zinc-200 text-center">
+                  {download.platform}
+                </span>
+              </a>
+            ))}
+          </div>
+          <p className="text-xs text-zinc-500 text-center mt-4">
+            注意：需要先上传二进制文件到服务器才能下载
+          </p>
         </div>
       </section>
 
