@@ -326,7 +326,7 @@ export default function HomePage() {
       : SKILLS.filter((s) => s.category === selectedCategory);
 
   return (
-    <div className="drawer" data-theme="crush">
+    <div className="drawer">
       <input id="main-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Navbar */}
@@ -375,13 +375,16 @@ export default function HomePage() {
               </li>
             </ul>
           </div>
-          <div className="navbar-end gap-2">
-            <div className="badge badge-success gap-1.5 py-3">
-              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-              运行中
+          <div className="navbar-end gap-3">
+            <div className="flex items-center gap-1.5 text-success text-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+              </span>
+              <span className="hidden sm:inline opacity-80">在线</span>
             </div>
             <a
-              href="https://charm.sh/crush"
+              href="https://github.com/charmbracelet/crush"
               target="_blank"
               rel="noopener"
               className="btn btn-sm btn-primary"
@@ -631,54 +634,93 @@ export default function HomePage() {
           </section>
 
           {/* Footer */}
-          <footer className="footer footer-center p-10 bg-base-300 text-base-content border-t border-base-200">
-            <aside>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl font-bold text-primary">CRUSH</span>
-                <span className="text-2xl font-bold opacity-70">
-                  Config Server
-                </span>
+          <footer className="border-t border-base-300 bg-base-200">
+            <div className="max-w-6xl mx-auto px-6 py-10">
+              <div className="flex flex-col md:flex-row justify-between gap-8">
+                {/* Brand */}
+                <div className="flex-shrink-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl font-bold text-primary">
+                      CRUSH
+                    </span>
+                    <span className="text-xl font-bold opacity-70">Config</span>
+                  </div>
+                  <p className="opacity-60 text-sm max-w-xs">
+                    Powered by{" "}
+                    <a
+                      href="https://github.com/charmbracelet/crush"
+                      className="link link-primary"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      Crush
+                    </a>{" "}
+                    - Terminal AI Assistant
+                  </p>
+                </div>
+
+                {/* Links */}
+                <div className="flex gap-16">
+                  <div>
+                    <h6 className="font-semibold mb-3 opacity-80">API</h6>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <a
+                          href="/api/health"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          Health
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/api/config"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          Config
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/api/skills"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          Skills
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h6 className="font-semibold mb-3 opacity-80">链接</h6>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <a
+                          href="https://github.com/charmbracelet/crush"
+                          target="_blank"
+                          rel="noopener"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          官网
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://github.com/charmbracelet"
+                          target="_blank"
+                          rel="noopener"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          GitHub
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
-              <p className="opacity-70 max-w-md">
-                Powered by{" "}
-                <a
-                  href="https://charm.sh/crush"
-                  className="link link-primary"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Crush
-                </a>{" "}
-                - Terminal AI Programming Assistant from Charm
-              </p>
-            </aside>
-            <nav>
-              <div className="grid grid-flow-col gap-6">
-                <a
-                  href="/api/health"
-                  className="link link-hover opacity-70 hover:opacity-100"
-                >
-                  Health
-                </a>
-                <a
-                  href="/api/config"
-                  className="link link-hover opacity-70 hover:opacity-100"
-                >
-                  Config
-                </a>
-                <a
-                  href="/api/skills"
-                  className="link link-hover opacity-70 hover:opacity-100"
-                >
-                  Skills
-                </a>
-              </div>
-            </nav>
-            <aside>
-              <p className="text-sm opacity-50">
-                © 2026 Crush Config Server. All rights reserved.
-              </p>
-            </aside>
+            </div>
+            <div className="border-t border-base-300 py-4 text-center">
+              <p className="text-sm opacity-50">© 2026 Crush Config Server</p>
+            </div>
           </footer>
         </main>
       </div>
@@ -712,7 +754,7 @@ export default function HomePage() {
           <div className="divider"></div>
           <li>
             <a
-              href="https://charm.sh/crush"
+              href="https://github.com/charmbracelet/crush"
               target="_blank"
               rel="noopener"
               className="text-lg py-3"

@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui";
 
 /* 代码块样式 */
 code {
@@ -14,17 +13,17 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(128, 128, 128, 0.1);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(128, 128, 128, 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(128, 128, 128, 0.5);
 }
 
 /* 渐变文字动画 */
@@ -58,37 +57,7 @@ html {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Timeline 响应式优化 */
-@media (max-width: 1024px) {
-  .timeline-horizontal {
-    flex-direction: column;
-  }
-}
-
 /* Mockup code 样式增强 */
 .mockup-code pre {
   padding-right: 3rem;
-}
-
-/* 按钮点击波纹效果 */
-.btn {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.2) 0%,
-    transparent 70%
-  );
-  transform: scale(0);
-  transition: transform 0.5s ease-out;
-}
-
-.btn:active::after {
-  transform: scale(2);
 }
