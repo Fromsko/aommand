@@ -33,6 +33,12 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# Crush binaries (downloaded during build)
+public/binaries/linux/
+public/binaries/darwin/
+public/binaries/windows/
+!public/binaries/README.md
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

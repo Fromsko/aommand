@@ -5,11 +5,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run download-binaries && next build",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "download-binaries": "bash scripts/download-crush-binaries.sh"
   },
   "dependencies": {
     "next": "^15.1.0",

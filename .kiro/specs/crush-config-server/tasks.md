@@ -169,7 +169,7 @@
 
 - [-] 14. 部署验证
 
-  - [-] 14.1 初始化 Git 仓库并推送到 GitHub
+  - [x] 14.1 初始化 Git 仓库并推送到 GitHub
     - git init, git add, git commit
     - 创建 GitHub 仓库并推送
     - _Requirements: 11.6_
