@@ -8,6 +8,11 @@
  */
 
 /**
+ * 应用版本号（语义化版本格式 X.Y.Z）
+ */
+export const APP_VERSION = "1.0.0";
+
+/**
  * Provider 配置接口（单个 provider）
  */
 export interface ProviderConfig {
