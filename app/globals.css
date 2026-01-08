@@ -2,42 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-}
-
-/* 深色主题样式 */
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
 /* 代码块样式 */
 code {
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
   font-family: "Fira Code", "Monaco", "Consolas", monospace;
-}
-
-pre {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-}
-
-pre code {
-  background-color: transparent;
-  padding: 0;
 }
 
 /* 响应式滚动条样式 */
@@ -60,25 +27,68 @@ pre code {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* 确保移动端触摸友好 */
-@media (max-width: 640px) {
-  button {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* 动画效果 */
-@keyframes pulse {
+/* 渐变文字动画 */
+@keyframes gradient {
   0%,
   100% {
-    opacity: 1;
+    background-position: 0% 50%;
   }
   50% {
-    opacity: 0.5;
+    background-position: 100% 50%;
   }
 }
 
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+/* 平滑滚动 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Tab 激活状态优化 */
+.tab-active {
+  transition: all 0.2s ease-in-out;
+}
+
+/* 卡片悬停效果增强 */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Timeline 响应式优化 */
+@media (max-width: 1024px) {
+  .timeline-horizontal {
+    flex-direction: column;
+  }
+}
+
+/* Mockup code 样式增强 */
+.mockup-code pre {
+  padding-right: 3rem;
+}
+
+/* 按钮点击波纹效果 */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  transform: scale(0);
+  transition: transform 0.5s ease-out;
+}
+
+.btn:active::after {
+  transform: scale(2);
 }

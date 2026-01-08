@@ -1,11 +1,8 @@
 "use client";
 
-import { SKILLS, type Skill, type SkillCategory } from "@/lib/data/skills-data";
+import { Skill, SKILLS, type SkillCategory } from "@/lib/data/skills-data";
 import { useEffect, useState } from "react";
 
-/**
- * 服务特性列表
- */
 const FEATURES = [
   {
     icon: "⚡",
@@ -22,16 +19,9 @@ const FEATURES = [
     title: "Agent Skills",
     description: "预装官方 Skills，扩展 AI 能力",
   },
-  {
-    icon: "🔄",
-    title: "自动更新",
-    description: "Skills 仓库自动克隆和更新",
-  },
+  { icon: "🔄", title: "自动更新", description: "Skills 仓库自动克隆和更新" },
 ];
 
-/**
- * 二进制下载链接
- */
 const BINARY_DOWNLOADS = [
   {
     platform: "Linux x64",
@@ -49,7 +39,7 @@ const BINARY_DOWNLOADS = [
     icon: "🍎",
   },
   {
-    platform: "macOS Apple Silicon",
+    platform: "macOS ARM",
     path: "/api/download/crush/darwin/arm64",
     icon: "🍎",
   },
@@ -60,9 +50,6 @@ const BINARY_DOWNLOADS = [
   },
 ];
 
-/**
- * 分类显示名称映射
- */
 const CATEGORY_LABELS: Record<SkillCategory, string> = {
   creative: "创意思维",
   design: "设计",
@@ -70,20 +57,14 @@ const CATEGORY_LABELS: Record<SkillCategory, string> = {
   dev: "开发",
 };
 
-/**
- * 分类颜色映射
- */
 const CATEGORY_COLORS: Record<SkillCategory, string> = {
-  creative: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  design: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  docs: "bg-green-500/20 text-green-300 border-green-500/30",
-  dev: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+  creative: "badge-secondary",
+  design: "badge-info",
+  docs: "badge-success",
+  dev: "badge-warning",
 };
 
-/**
- * 安装命令组件
- */
-function InstallCommand({
+function TerminalMockup({
   platform,
   command,
 }: {
@@ -91,7 +72,6 @@ function InstallCommand({
   command: string;
 }) {
   const [copied, setCopied] = useState(false);
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(command);
     setCopied(true);
@@ -99,54 +79,84 @@ function InstallCommand({
   };
 
   return (
-    <div className="bg-zinc-900 rounded-lg border border-zinc-700 overflow-hidden">
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-zinc-800/50 border-b border-zinc-700">
-        <span className="text-sm text-zinc-300 font-medium">{platform}</span>
-        <button
-          onClick={handleCopy}
-          className="text-xs px-3 py-1.5 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-200 transition-colors min-h-[32px] sm:min-h-0"
-          aria-label={copied ? "已复制到剪贴板" : "复制命令"}
-        >
-          {copied ? "已复制!" : "复制"}
-        </button>
+    <div className="relative group">
+      <div className="mockup-code bg-base-300 shadow-2xl">
+        <div className="absolute top-3 right-3 z-10">
+          <button
+            onClick={handleCopy}
+            className={`btn btn-sm btn-circle ${
+              copied ? "btn-success" : "btn-ghost"
+            }`}
+          >
+            {copied ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+        <pre data-prefix="$" className="text-success">
+          <code>{command}</code>
+        </pre>
+        <pre data-prefix=">" className="text-warning opacity-60">
+          <code>{platform}</code>
+        </pre>
       </div>
-      <pre className="p-3 sm:p-4 overflow-x-auto text-xs sm:text-sm">
-        <code className="text-green-400 break-all sm:break-normal">
-          {command}
-        </code>
-      </pre>
+      {copied && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+          <div className="badge badge-success gap-1 animate-bounce">
+            ✓ 已复制到剪贴板
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-/**
- * Skill 卡片组件
- */
 function SkillCard({ skill }: { skill: Skill }) {
   return (
-    <div className="bg-zinc-900/50 rounded-lg border border-zinc-700 p-3 sm:p-4 hover:border-zinc-600 transition-colors">
-      <div className="flex items-start justify-between gap-2 mb-2 flex-wrap sm:flex-nowrap">
-        <h3 className="font-mono text-sm font-medium text-zinc-50">
-          {skill.name}
-        </h3>
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${
-            CATEGORY_COLORS[skill.category]
-          }`}
-        >
-          {CATEGORY_LABELS[skill.category]}
-        </span>
+    <div className="card bg-base-200 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-base-300 hover:border-primary/50">
+      <div className="card-body p-5">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="card-title text-base font-mono text-primary">
+            {skill.name}
+          </h3>
+          <span className={`badge badge-sm ${CATEGORY_COLORS[skill.category]}`}>
+            {CATEGORY_LABELS[skill.category]}
+          </span>
+        </div>
+        <p className="text-sm opacity-70 leading-relaxed">
+          {skill.description}
+        </p>
       </div>
-      <p className="text-sm text-zinc-300 leading-relaxed">
-        {skill.description}
-      </p>
     </div>
   );
 }
 
-/**
- * 特性卡片组件
- */
 function FeatureCard({
   icon,
   title,
@@ -157,189 +167,561 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="bg-zinc-900/30 rounded-lg border border-zinc-700/50 p-4 hover:border-zinc-600/50 transition-colors">
-      <div className="text-2xl mb-2" role="img" aria-hidden="true">
-        {icon}
+    <div className="card bg-base-200/80 backdrop-blur hover:bg-base-300 transition-all duration-300 border border-base-300 hover:border-primary/30 group hover:-translate-y-1">
+      <div className="card-body p-6 items-center text-center">
+        <div className="avatar placeholder mb-2">
+          <div className="bg-primary/10 text-primary rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <span className="text-3xl">{icon}</span>
+          </div>
+        </div>
+        <h3 className="card-title text-lg">{title}</h3>
+        <p className="text-sm opacity-70">{description}</p>
       </div>
-      <h3 className="font-medium text-zinc-50 mb-1">{title}</h3>
-      <p className="text-sm text-zinc-300">{description}</p>
     </div>
   );
 }
 
-/**
- * 首页组件
- */
+function StatsSection() {
+  return (
+    <div className="stats stats-vertical lg:stats-horizontal shadow-2xl bg-base-200/90 backdrop-blur-lg w-full max-w-3xl border border-base-300">
+      <div className="stat">
+        <div className="stat-figure text-primary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="inline-block w-8 h-8 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            ></path>
+          </svg>
+        </div>
+        <div className="stat-title">Skills</div>
+        <div className="stat-value text-primary">{SKILLS.length}</div>
+        <div className="stat-desc">预装官方技能</div>
+      </div>
+      <div className="stat">
+        <div className="stat-figure text-secondary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="inline-block w-8 h-8 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            ></path>
+          </svg>
+        </div>
+        <div className="stat-title">平台</div>
+        <div className="stat-value text-secondary">5</div>
+        <div className="stat-desc">支持的系统架构</div>
+      </div>
+      <div className="stat">
+        <div className="stat-figure text-accent">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="inline-block w-8 h-8 stroke-current"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+            ></path>
+          </svg>
+        </div>
+        <div className="stat-title">Providers</div>
+        <div className="stat-value text-accent">3</div>
+        <div className="stat-desc">LLM 提供商</div>
+      </div>
+    </div>
+  );
+}
+
+function InstallTimeline() {
+  return (
+    <ul className="timeline timeline-vertical lg:timeline-horizontal">
+      <li>
+        <div className="timeline-start timeline-box bg-base-200 border-primary/30">
+          运行命令
+        </div>
+        <div className="timeline-middle">
+          <div className="badge badge-primary badge-lg">1</div>
+        </div>
+        <hr className="bg-primary" />
+      </li>
+      <li>
+        <hr className="bg-primary" />
+        <div className="timeline-middle">
+          <div className="badge badge-primary badge-lg">2</div>
+        </div>
+        <div className="timeline-end timeline-box bg-base-200 border-primary/30">
+          下载 Crush
+        </div>
+        <hr className="bg-primary" />
+      </li>
+      <li>
+        <hr className="bg-primary" />
+        <div className="timeline-start timeline-box bg-base-200 border-primary/30">
+          配置环境
+        </div>
+        <div className="timeline-middle">
+          <div className="badge badge-primary badge-lg">3</div>
+        </div>
+        <hr className="bg-secondary" />
+      </li>
+      <li>
+        <hr className="bg-secondary" />
+        <div className="timeline-middle">
+          <div className="badge badge-secondary badge-lg">4</div>
+        </div>
+        <div className="timeline-end timeline-box bg-base-200 border-secondary/30">
+          安装 Skills
+        </div>
+        <hr className="bg-secondary" />
+      </li>
+      <li>
+        <hr className="bg-secondary" />
+        <div className="timeline-start timeline-box bg-base-200 border-success/30">
+          开始使用 🎉
+        </div>
+        <div className="timeline-middle">
+          <div className="badge badge-success badge-lg">✓</div>
+        </div>
+      </li>
+    </ul>
+  );
+}
+
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
   const [baseUrl, setBaseUrl] = useState("");
+  const [activeTab, setActiveTab] = useState<"unix" | "windows">("unix");
+  const [selectedCategory, setSelectedCategory] = useState<
+    SkillCategory | "all"
+  >("all");
 
   useEffect(() => {
-    // 在客户端获取当前 URL
+    setMounted(true);
     setBaseUrl(window.location.origin);
   }, []);
 
-  const unixCommand = `curl -fsSL ${
-    baseUrl || "{baseUrl}"
-  }/api/install/unix | bash`;
-  const windowsCommand = `iwr ${
-    baseUrl || "{baseUrl}"
-  }/api/install/windows | iex`;
+  // 使用占位符避免 hydration 不匹配
+  const displayUrl = mounted ? baseUrl : "https://your-domain.com";
+  const unixCommand = `curl -fsSL ${displayUrl}/api/install/unix | bash`;
+  const windowsCommand = `iwr ${displayUrl}/api/install/windows | iex`;
+  const filteredSkills =
+    selectedCategory === "all"
+      ? SKILLS
+      : SKILLS.filter((s) => s.category === selectedCategory);
 
   return (
-    <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="py-10 sm:py-12 md:py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-zinc-50 to-zinc-300 bg-clip-text text-transparent">
-            CRUSH Config Server
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-zinc-300 mb-6 sm:mb-8 px-2">
-            统一配置部署服务 - 快速配置 Crush AI 编程助手
-          </p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/50 border border-zinc-600 text-sm text-zinc-200">
-            <span
-              className="w-2 h-2 rounded-full bg-green-500 animate-pulse"
-              aria-hidden="true"
-            ></span>
-            <span>服务运行中</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Installation Section */}
-      <section className="py-10 sm:py-12 px-4 bg-zinc-900/30">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-zinc-50">
-            快速安装
-          </h2>
-          <p className="text-zinc-300 text-center mb-6 sm:mb-8 px-2">
-            选择你的操作系统，运行以下命令即可完成配置
-          </p>
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-            <div>
-              <h3 className="text-sm font-medium text-zinc-200 mb-2 flex items-center gap-2">
-                <span role="img" aria-label="Linux">
-                  🐧
-                </span>{" "}
-                Linux / macOS
-              </h3>
-              <InstallCommand platform="Bash" command={unixCommand} />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-zinc-200 mb-2 flex items-center gap-2">
-                <span role="img" aria-label="Windows">
-                  🪟
-                </span>{" "}
-                Windows
-              </h3>
-              <InstallCommand platform="PowerShell" command={windowsCommand} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-10 sm:py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-zinc-50">
-            服务特性
-          </h2>
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section className="py-10 sm:py-12 px-4 bg-zinc-900/30">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center text-zinc-50">
-            Agent Skills
-          </h2>
-          <p className="text-zinc-300 text-center mb-6 sm:mb-8 px-2">
-            预装的官方 Skills，扩展 Crush 的 AI 能力
-          </p>
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SKILLS.map((skill) => (
-              <SkillCard key={skill.name} skill={skill} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Binary Downloads Section */}
-      <section className="py-10 sm:py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center text-zinc-50">
-            手动下载
-          </h2>
-          <p className="text-zinc-300 text-center mb-6 sm:mb-8 px-2">
-            如果自动安装失败，可以手动下载对应平台的 Crush 二进制文件
-          </p>
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-            {BINARY_DOWNLOADS.map((download) => (
-              <a
-                key={download.path}
-                href={`${baseUrl}${download.path}`}
-                className="flex flex-col items-center gap-2 p-4 bg-zinc-900/50 rounded-lg border border-zinc-700 hover:border-zinc-500 hover:bg-zinc-800/50 transition-all"
-                download
+    <div className="drawer" data-theme="crush">
+      <input id="main-drawer" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content">
+        {/* Navbar */}
+        <div className="navbar bg-base-200/80 backdrop-blur-md sticky top-0 z-50 border-b border-base-300">
+          <div className="navbar-start">
+            <label
+              htmlFor="main-drawer"
+              className="btn btn-ghost drawer-button lg:hidden"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <span className="text-2xl" role="img" aria-hidden="true">
-                  {download.icon}
-                </span>
-                <span className="text-sm text-zinc-200 text-center">
-                  {download.platform}
-                </span>
-              </a>
-            ))}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h8m-8 6h16"
+                />
+              </svg>
+            </label>
+            <a className="btn btn-ghost text-xl font-bold gap-1">
+              <span className="text-primary">CRUSH</span>
+              <span className="opacity-70">Config</span>
+            </a>
           </div>
-          <p className="text-xs text-zinc-500 text-center mt-4">
-            注意：需要先上传二进制文件到服务器才能下载
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-6 sm:py-8 px-4 border-t border-zinc-700">
-        <div className="max-w-4xl mx-auto text-center text-sm text-zinc-400">
-          <p className="mb-2">
-            Powered by{" "}
+          <div className="navbar-center hidden lg:flex">
+            <ul className="menu menu-horizontal px-1 gap-1">
+              <li>
+                <a href="#install" className="rounded-lg">
+                  安装
+                </a>
+              </li>
+              <li>
+                <a href="#skills" className="rounded-lg">
+                  Skills
+                </a>
+              </li>
+              <li>
+                <a href="#download" className="rounded-lg">
+                  下载
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div className="navbar-end gap-2">
+            <div className="badge badge-success gap-1.5 py-3">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+              运行中
+            </div>
             <a
               href="https://charm.sh/crush"
               target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-300 hover:text-zinc-100 underline underline-offset-2 transition-colors"
+              rel="noopener"
+              className="btn btn-sm btn-primary"
             >
-              Crush
-            </a>{" "}
-            - Terminal AI Programming Assistant by Charmbracelet
-          </p>
-          <nav className="flex flex-wrap justify-center gap-x-2 gap-y-1">
-            <a
-              href="/api/health"
-              className="text-zinc-300 hover:text-zinc-100 underline underline-offset-2 transition-colors"
-            >
-              API Health
+              官网
             </a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="/api/config"
-              className="text-zinc-300 hover:text-zinc-100 underline underline-offset-2 transition-colors"
-            >
-              Config API
-            </a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="/api/skills"
-              className="text-zinc-300 hover:text-zinc-100 underline underline-offset-2 transition-colors"
-            >
-              Skills API
-            </a>
-          </nav>
+          </div>
         </div>
-      </footer>
-    </main>
+
+        <main className="min-h-screen bg-base-100">
+          {/* Hero Section */}
+          <section className="hero min-h-[70vh] bg-gradient-to-br from-base-200 via-base-100 to-base-200 relative overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+            </div>
+            <div className="hero-content text-center py-20 relative z-10">
+              <div className="max-w-3xl">
+                <div className="badge badge-primary badge-outline mb-6 py-3 px-4 animate-pulse">
+                  ✨ Terminal AI Programming Assistant
+                </div>
+                <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-gradient">
+                    Crush
+                  </span>
+                  <br />
+                  <span className="text-base-content">统一配置服务</span>
+                </h1>
+                <p className="text-lg md:text-xl opacity-80 mb-10 max-w-xl mx-auto">
+                  一键安装配置 Crush AI 编程助手
+                  <br />
+                  预装 Skills 和 MCP 服务，开箱即用
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <a
+                    href="#install"
+                    className="btn btn-primary btn-lg gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    开始安装
+                  </a>
+                  <a href="#skills" className="btn btn-outline btn-lg gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                      />
+                    </svg>
+                    查看 Skills
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Stats Section */}
+          <section className="py-12 px-4 flex justify-center -mt-16 relative z-20">
+            <StatsSection />
+          </section>
+
+          {/* Features Section */}
+          <section className="py-20 px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-3">服务特性</h2>
+                <p className="opacity-70">为什么选择 Crush Config Server</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {FEATURES.map((feature) => (
+                  <FeatureCard key={feature.title} {...feature} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Installation Section */}
+          <section id="install" className="py-20 px-4 bg-base-200/50">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-3">快速安装</h2>
+                <p className="opacity-70">选择你的操作系统，一行命令搞定</p>
+              </div>
+
+              {/* Tab buttons */}
+              <div
+                role="tablist"
+                className="tabs tabs-boxed bg-base-300 p-1 max-w-md mx-auto mb-8"
+              >
+                <button
+                  role="tab"
+                  className={`tab tab-lg flex-1 gap-2 ${
+                    activeTab === "unix"
+                      ? "tab-active bg-primary text-primary-content"
+                      : ""
+                  }`}
+                  onClick={() => setActiveTab("unix")}
+                >
+                  🐧 Unix / macOS
+                </button>
+                <button
+                  role="tab"
+                  className={`tab tab-lg flex-1 gap-2 ${
+                    activeTab === "windows"
+                      ? "tab-active bg-primary text-primary-content"
+                      : ""
+                  }`}
+                  onClick={() => setActiveTab("windows")}
+                >
+                  🪟 Windows
+                </button>
+              </div>
+
+              {/* Command display */}
+              <div className="max-w-2xl mx-auto">
+                {activeTab === "unix" ? (
+                  <TerminalMockup platform="Bash / Zsh" command={unixCommand} />
+                ) : (
+                  <TerminalMockup
+                    platform="PowerShell"
+                    command={windowsCommand}
+                  />
+                )}
+              </div>
+
+              {/* Installation timeline */}
+              <div className="mt-16 flex justify-center overflow-x-auto pb-4">
+                <InstallTimeline />
+              </div>
+            </div>
+          </section>
+
+          {/* Skills Section */}
+          <section id="skills" className="py-20 px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-3">Agent Skills</h2>
+                <p className="opacity-70">
+                  预装的官方 Skills，扩展 Crush 的 AI 能力
+                </p>
+              </div>
+
+              {/* Category filter */}
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                <button
+                  className={`btn btn-sm ${
+                    selectedCategory === "all" ? "btn-primary" : "btn-ghost"
+                  }`}
+                  onClick={() => setSelectedCategory("all")}
+                >
+                  全部 ({SKILLS.length})
+                </button>
+                {(
+                  Object.entries(CATEGORY_LABELS) as [SkillCategory, string][]
+                ).map(([key, label]) => {
+                  const count = SKILLS.filter((s) => s.category === key).length;
+                  return (
+                    <button
+                      key={key}
+                      className={`btn btn-sm ${
+                        selectedCategory === key
+                          ? CATEGORY_COLORS[key].replace("badge-", "btn-")
+                          : "btn-ghost"
+                      }`}
+                      onClick={() => setSelectedCategory(key)}
+                    >
+                      {label} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredSkills.map((skill) => (
+                  <SkillCard key={skill.name} skill={skill} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Downloads Section */}
+          <section id="download" className="py-20 px-4 bg-base-200/50">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-3">手动下载</h2>
+                <p className="opacity-70">
+                  如果自动安装失败，可以手动下载二进制文件
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                {BINARY_DOWNLOADS.map((download) => (
+                  <a
+                    key={download.path}
+                    href={`${displayUrl}${download.path}`}
+                    className="btn btn-outline btn-lg gap-3 h-auto py-4 flex-col hover:btn-primary transition-all"
+                    download
+                  >
+                    <span className="text-2xl">{download.icon}</span>
+                    <span>{download.platform}</span>
+                  </a>
+                ))}
+              </div>
+
+              {/* Alert */}
+              <div
+                role="alert"
+                className="alert alert-info mt-10 max-w-2xl mx-auto"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="stroke-current shrink-0 w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                <span>下载后需要手动配置环境变量和 Skills 目录</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="footer footer-center p-10 bg-base-300 text-base-content border-t border-base-200">
+            <aside>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl font-bold text-primary">CRUSH</span>
+                <span className="text-2xl font-bold opacity-70">
+                  Config Server
+                </span>
+              </div>
+              <p className="opacity-70 max-w-md">
+                Powered by{" "}
+                <a
+                  href="https://charm.sh/crush"
+                  className="link link-primary"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Crush
+                </a>{" "}
+                - Terminal AI Programming Assistant from Charm
+              </p>
+            </aside>
+            <nav>
+              <div className="grid grid-flow-col gap-6">
+                <a
+                  href="/api/health"
+                  className="link link-hover opacity-70 hover:opacity-100"
+                >
+                  Health
+                </a>
+                <a
+                  href="/api/config"
+                  className="link link-hover opacity-70 hover:opacity-100"
+                >
+                  Config
+                </a>
+                <a
+                  href="/api/skills"
+                  className="link link-hover opacity-70 hover:opacity-100"
+                >
+                  Skills
+                </a>
+              </div>
+            </nav>
+            <aside>
+              <p className="text-sm opacity-50">
+                © 2026 Crush Config Server. All rights reserved.
+              </p>
+            </aside>
+          </footer>
+        </main>
+      </div>
+
+      {/* Drawer sidebar for mobile */}
+      <div className="drawer-side z-50">
+        <label
+          htmlFor="main-drawer"
+          aria-label="close sidebar"
+          className="drawer-overlay"
+        ></label>
+        <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+          <li className="menu-title">
+            <span className="text-primary font-bold text-lg">CRUSH Config</span>
+          </li>
+          <li>
+            <a href="#install" className="text-lg py-3">
+              🚀 安装
+            </a>
+          </li>
+          <li>
+            <a href="#skills" className="text-lg py-3">
+              🎯 Skills
+            </a>
+          </li>
+          <li>
+            <a href="#download" className="text-lg py-3">
+              📦 下载
+            </a>
+          </li>
+          <div className="divider"></div>
+          <li>
+            <a
+              href="https://charm.sh/crush"
+              target="_blank"
+              rel="noopener"
+              className="text-lg py-3"
+            >
+              🌐 官网
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
   );
 }
