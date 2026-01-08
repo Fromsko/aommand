@@ -10,15 +10,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 # 颜色输出函数
-function Write-Success { param([string]$Message) Write-Host "✓ $Message" -ForegroundColor Green }
-function Write-Info { param([string]$Message) Write-Host "ℹ $Message" -ForegroundColor Blue }
-function Write-Warn { param([string]$Message) Write-Host "⚠ $Message" -ForegroundColor Yellow }
-function Write-Err { param([string]$Message) Write-Host "✗ $Message" -ForegroundColor Red }
+function Write-Success { param([string]$Message) Write-Host "[OK] $Message" -ForegroundColor Green }
+function Write-Info { param([string]$Message) Write-Host "[..] $Message" -ForegroundColor Blue }
+function Write-Warn { param([string]$Message) Write-Host "[!!] $Message" -ForegroundColor Yellow }
+function Write-Err { param([string]$Message) Write-Host "[XX] $Message" -ForegroundColor Red }
 
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Blue
+Write-Host "============================================================" -ForegroundColor Blue
 Write-Host "  Crush Binary Downloader" -ForegroundColor Blue
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Blue
+Write-Host "============================================================" -ForegroundColor Blue
 Write-Host ""
 
 # 获取脚本所在目录的父目录（项目根目录）
@@ -42,16 +42,19 @@ if ($Version -eq "latest") {
     }
 }
 
-$BaseUrl = "https://github.com/charmbracelet/crush/releases/download/$Version"
+# 去掉版本号前面的 v（如果有的话）
+$VersionNum = $Version -replace "^v", ""
 
-# 定义下载任务
+# 定义下载任务 - 使用正确的文件名格式: crush_{version}_{OS}_{arch}.tar.gz
 $Downloads = @(
-    @{ Name = "Linux x64"; Url = "$BaseUrl/crush_Linux_x86_64.tar.gz"; Dest = "linux\amd64"; Archive = "tar.gz" },
-    @{ Name = "Linux ARM64"; Url = "$BaseUrl/crush_Linux_arm64.tar.gz"; Dest = "linux\arm64"; Archive = "tar.gz" },
-    @{ Name = "macOS x64"; Url = "$BaseUrl/crush_Darwin_x86_64.tar.gz"; Dest = "darwin\amd64"; Archive = "tar.gz" },
-    @{ Name = "macOS ARM64"; Url = "$BaseUrl/crush_Darwin_arm64.tar.gz"; Dest = "darwin\arm64"; Archive = "tar.gz" },
-    @{ Name = "Windows x64"; Url = "$BaseUrl/crush_Windows_x86_64.zip"; Dest = "windows\amd64"; Archive = "zip" }
+    @{ Name = "Linux x64"; File = "crush_${VersionNum}_Linux_x86_64.tar.gz"; Dest = "linux\amd64"; Archive = "tar.gz" },
+    @{ Name = "Linux ARM64"; File = "crush_${VersionNum}_Linux_arm64.tar.gz"; Dest = "linux\arm64"; Archive = "tar.gz" },
+    @{ Name = "macOS x64"; File = "crush_${VersionNum}_Darwin_x86_64.tar.gz"; Dest = "darwin\amd64"; Archive = "tar.gz" },
+    @{ Name = "macOS ARM64"; File = "crush_${VersionNum}_Darwin_arm64.tar.gz"; Dest = "darwin\arm64"; Archive = "tar.gz" },
+    @{ Name = "Windows x64"; File = "crush_${VersionNum}_Windows_x86_64.zip"; Dest = "windows\amd64"; Archive = "zip" }
 )
+
+$BaseUrl = "https://github.com/charmbracelet/crush/releases/download/$Version"
 
 $TempDir = Join-Path $env:TEMP "crush_download_$(Get-Random)"
 New-Item -ItemType Directory -Path $TempDir -Force | Out-Null
@@ -65,9 +68,11 @@ $FailCount = 0
 
 foreach ($dl in $Downloads) {
     $destPath = Join-Path $BinariesDir $dl.Dest
-    $archiveFile = Join-Path $TempDir "crush_$($dl.Dest -replace '\\', '_').$($dl.Archive)"
+    $downloadUrl = "$BaseUrl/$($dl.File)"
+    $archiveFile = Join-Path $TempDir $dl.File
     
     Write-Info "Downloading $($dl.Name)..."
+    Write-Host "    URL: $downloadUrl" -ForegroundColor DarkGray
     
     try {
         # 确保目标目录存在
@@ -76,7 +81,7 @@ foreach ($dl in $Downloads) {
         }
         
         # 下载文件
-        Invoke-WebRequest -Uri $dl.Url -OutFile $archiveFile -UseBasicParsing
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $archiveFile -UseBasicParsing
         
         # 解压文件
         if ($dl.Archive -eq "zip") {
@@ -86,14 +91,22 @@ foreach ($dl in $Downloads) {
             tar -xzf $archiveFile -C $destPath
         }
         
-        # 清理不需要的文件，只保留 crush 可执行文件
+        # 查找 crush 可执行文件（可能在子目录中）
         $crushExe = if ($dl.Dest -like "windows*") { "crush.exe" } else { "crush" }
-        $crushPath = Join-Path $destPath $crushExe
+        $crushFile = Get-ChildItem -Path $destPath -Recurse -Filter $crushExe | Select-Object -First 1
         
-        if (Test-Path $crushPath) {
-            # 删除其他文件（README, LICENSE 等）
+        if ($crushFile) {
+            $finalPath = Join-Path $destPath $crushExe
+            
+            # 如果文件在子目录中，移动到目标目录
+            if ($crushFile.FullName -ne $finalPath) {
+                Move-Item -Path $crushFile.FullName -Destination $finalPath -Force
+            }
+            
+            # 删除其他文件和子目录
             Get-ChildItem -Path $destPath -Exclude $crushExe | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-            Write-Success "$($dl.Name) -> $crushPath"
+            
+            Write-Success "$($dl.Name) -> $finalPath"
             $SuccessCount++
         } else {
             Write-Warn "$($dl.Name) - crush binary not found in archive"
@@ -110,11 +123,11 @@ foreach ($dl in $Downloads) {
 Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Blue
+Write-Host "============================================================" -ForegroundColor Blue
 Write-Host "  Download Summary" -ForegroundColor Blue
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Blue
+Write-Host "============================================================" -ForegroundColor Blue
 Write-Host ""
-Write-Host "  Version:    $Version"
+Write-Host "  Version:    $Version ($VersionNum)"
 Write-Host "  Success:    $SuccessCount"
 Write-Host "  Failed:     $FailCount"
 Write-Host ""
@@ -128,6 +141,7 @@ if ($FailCount -eq 0) {
 Write-Host ""
 Write-Info "Binary locations:"
 Get-ChildItem -Path $BinariesDir -Recurse -Include "crush", "crush.exe" | ForEach-Object {
-    Write-Host "  $($_.FullName)"
+    $size = [math]::Round($_.Length / 1MB, 2)
+    Write-Host "  $($_.FullName) (${size} MB)"
 }
 Write-Host ""
