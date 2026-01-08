@@ -100,10 +100,14 @@ detect_platform() {
 # ----------------------------------------------------------------------------
 install_crush() {
     local platform="\$1"
-    local download_url="\$BASE_URL/api/download/crush/\$platform"
+    # 直接使用静态文件路径，避免 API 重定向问题
+    local os=\$(echo "\$platform" | cut -d'/' -f1)
+    local arch=\$(echo "\$platform" | cut -d'/' -f2)
+    local download_url="\$BASE_URL/binaries/\$os/\$arch/crush"
     local temp_file="/tmp/crush_binary_\$\$"
     
     print_info "Downloading Crush binary for \$platform..."
+    print_info "URL: \$download_url"
     
     # Create install directory if it doesn't exist
     if [ ! -d "\$INSTALL_DIR" ]; then

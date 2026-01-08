@@ -73,10 +73,12 @@ function Exit-WithError {
 # Install Crush Binary
 # ----------------------------------------------------------------------------
 function Install-Crush {
-    $downloadUrl = "$BASE_URL/api/download/crush/windows/amd64"
+    # 直接使用静态文件路径，避免 API 重定向问题
+    $downloadUrl = "$BASE_URL/binaries/windows/amd64/crush.exe"
     $tempFile = "$env:TEMP\\crush_$([System.Guid]::NewGuid().ToString()).exe"
     
     Write-Info "Downloading Crush binary..."
+    Write-Info "URL: $downloadUrl"
     
     # Create bin directory if it doesn't exist
     if (-not (Test-Path $BIN_DIR)) {
