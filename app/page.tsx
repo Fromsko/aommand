@@ -351,7 +351,12 @@ export default function HomePage() {
                 />
               </svg>
             </label>
-            <a className="btn btn-ghost text-xl font-bold gap-1">
+            <a
+              href="https://github.com/fromsko/aommand"
+              target="_blank"
+              rel="noopener"
+              className="btn btn-ghost text-xl font-bold gap-1"
+            >
               <span className="text-primary">CRUSH</span>
               <span className="opacity-70">Config</span>
             </a>
@@ -389,7 +394,7 @@ export default function HomePage() {
               rel="noopener"
               className="btn btn-sm btn-primary"
             >
-              官网
+              Crush 官网
             </a>
           </div>
         </div>
@@ -682,22 +687,32 @@ export default function HomePage() {
                     <ul className="space-y-2 text-sm">
                       <li>
                         <a
-                          href="https://github.com/charmbracelet/crush"
+                          href="https://charm.sh/crush"
                           target="_blank"
                           rel="noopener"
                           className="link link-hover opacity-70 hover:opacity-100"
                         >
-                          官网
+                          Crush 官网
                         </a>
                       </li>
                       <li>
                         <a
-                          href="https://github.com/charmbracelet"
+                          href="https://github.com/andysama-work/openskills"
                           target="_blank"
                           rel="noopener"
                           className="link link-hover opacity-70 hover:opacity-100"
                         >
-                          GitHub
+                          OpenSkills
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://daisyui.com/llms.txt"
+                          target="_blank"
+                          rel="noopener"
+                          className="link link-hover opacity-70 hover:opacity-100"
+                        >
+                          DaisyUI
                         </a>
                       </li>
                     </ul>
@@ -706,7 +721,17 @@ export default function HomePage() {
               </div>
             </div>
             <div className="border-t border-base-300 py-4 text-center">
-              <p className="text-sm opacity-50">© 2026 Crush Config Server</p>
+              <p className="text-sm opacity-50">
+                © 2026 Crush Config Server · Made by{" "}
+                <a
+                  href="https://github.com/fromsko/aommand"
+                  target="_blank"
+                  rel="noopener"
+                  className="link link-primary"
+                >
+                  @fromsko
+                </a>
+              </p>
             </div>
           </footer>
         </main>
