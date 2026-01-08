@@ -587,49 +587,36 @@ export default function HomePage() {
           </section>
 
           {/* Downloads Section */}
-          <section id="download" className="py-20 px-4 bg-base-200/50">
+          <section id="download" className="py-20 px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-3">手动下载</h2>
-                <p className="opacity-70">
+                <p className="opacity-60">
                   如果自动安装失败，可以手动下载二进制文件
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 max-w-4xl mx-auto">
                 {BINARY_DOWNLOADS.map((download) => (
                   <a
                     key={download.path}
                     href={`${displayUrl}${download.path}`}
-                    className="btn btn-outline btn-lg gap-3 h-auto py-4 flex-col hover:btn-primary transition-all"
+                    className="group flex flex-col items-center gap-3 p-5 rounded-xl bg-base-200 hover:bg-primary/10 border border-base-300 hover:border-primary/50 transition-all duration-300"
                     download
                   >
-                    <span className="text-2xl">{download.icon}</span>
-                    <span>{download.platform}</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform">
+                      {download.icon}
+                    </span>
+                    <span className="text-sm font-medium opacity-80 group-hover:opacity-100">
+                      {download.platform}
+                    </span>
                   </a>
                 ))}
               </div>
 
-              {/* Alert */}
-              <div
-                role="alert"
-                className="alert alert-info mt-10 max-w-2xl mx-auto"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  className="stroke-current shrink-0 w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                <span>下载后需要手动配置环境变量和 Skills 目录</span>
-              </div>
+              <p className="text-center text-sm opacity-50 mt-8">
+                💡 下载后需要手动配置环境变量和 Skills 目录
+              </p>
             </div>
           </section>
 
